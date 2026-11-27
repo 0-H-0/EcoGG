@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+<body class="bg-light">
+	
+	<div class="container">
+		<main>
+			<div class="py-5 text-center">
+				<a href="/home"><img class="d-block mx-auto mb-4" src="/images/eco-logo-cow.png" alt="" width="130"></a>
+				<h2>Sign Up</h2>
+			</div>
+
+			<div style="margin-left: 350px; margin-right: 350px;">
+				<form class="needs-validation" action="/member/enroll" method="POST" id="enrollForm">
+					<div class="row g-3">
+						<div class="col-12">
+							<label for="member_Id" class="form-label">ID</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="member_Id" name="memberId" required>
+								<button type="button" class="btn btn-outline-primary" id="idCheckBtn">중복 확인</button>
+							</div>
+							<small id="idCheckResult" style="color: gray;">아이디 중복 확인을 해주세요.</small>
+						</div>
+						
+						<div class="col-12">
+							<label for="pwd" class="form-label">PWD</label>
+							<input type="password" class="form-control" id="pwd" name="memberPwd" required>
+							<small style="color: gray;">영문, 숫자, 특수문자를 포함하여 8~16자로 입력해주세요.<br/>사용가능한 특수문자 : ! ? @ # $ % & *</small>
+						</div>
+						
+						<div class="col-12">
+							<label for="pwdConfirm" class="form-label">PWD Confirm</label>
+							<input type="password" class="form-control" id="pwdConfirm" required>
+							<small style="color: gray;">비밀번호를 확인해주세요.</small>
+						</div>
+						
+						<div class="col-12">
+							<label for="name" class="form-label">NAME</label>
+							<input type="text" class="form-control" id="name" name="memberName" required>
+						</div>
+						
+						<div class="col-12">
+							<label for="member_NickName" class="form-label">NICKNAME</label>
+							<input type="text" class="form-control" id="member_NickName" name="memberNickName" required>
+							<small id="nickNameCheckResult" style="color: gray;">닉네임을 입력해 주세요.</small>
+						</div>
+
+						<div class="col-12">
+							<label for="emailId" class="form-label">EMAIL</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="emailId" name="emailId" required>
+								<span class="input-group-text">@</span>
+								<select name="emailDomain" style="width: 200px;">
+									<option>naver.com</option>
+									<option>gmail.com</option>
+									<option>nate.com</option>
+									<option>hanmail.net</option>
+								</select>
+								<button type="button" class="btn btn-outline-primary" id="sendEmail">인증번호</button>
+							</div>
+						</div>
+						
+						<div class="col-12" style="display: none;">
+							<label class="form-label">EMAIL CONFIRM</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="inputVerifyNum"/>
+								<span class="input-group-text" id="emailTimer" style="color: red;"></span>
+								<button type="button" class="w-25 btn btn-outline-primary" id="verifyBtn">인증번호 확인</button> 
+							</div>
+						</div>
+											
+						<br><br><br><br><br>
+						
+						<button class="w-100 btn btn-primary btn-lg">SIGN UP</button>
+					</div>
+				</form>
+			</div>
+		</main>
+
+		<footer class="my-5 pt-5 text-muted text-center text-small"></footer>
+	</div>
+	
+	<script>
+		let checkId = false;
+		let checkNickname = false;
+		const checkValue = (obj) => { 
+			const resultLabel = obj.id == 'member_Id' ? document.querySelector('#idCheckResult') : obj.nextElementSibling;
+			obj.id == 'member_Id' ? checkId = false : checkNickname = false;
+			if(obj.value.trim() == ''){
+				resultLabel.innerText = `${obj.id == 'member_Id' ? '아이디 중복 확인을 해주세요.' : '닉네임을 입력해 주세요.'}`;
+				resultLabel.style.color = 'gray';
+			} else {
+				if(obj.value.trim().length >= 2){
+					const requestValue = obj.value.trim();
+					fetch(`/member/idNickname?column=${obj.id}&value=${encodeURIComponent(requestValue)}`)
+					.then(res => res.json())
+					.then(data => {
+						if(requestValue != obj.value.trim()) return;
+						if(data == 0){
+							obj.id == 'member_Id' ? checkId=true : checkNickname=true;
+							resultLabel.innerText = '사용 가능한 ' + (obj.id == 'member_Id' ? '아이디' : '닉네임') + '입니다.';
+							resultLabel.style.color = 'green';
+						} else {
+							resultLabel.innerText = `사용할 수 없는 ${obj.id == 'member_Id' ? '아이디' : '닉네임'} 입니다.`;
+							resultLabel.style.color = 'red';
+						}
+					})
+					.catch(err => console.log(err))
+				} else {
+					resultLabel.innerText = '2글자 이상 작성해 주세요';
+					resultLabel.style.color = 'red';
+				}
+			}
+		}
+		
+		window.onload = () => {
+			document.querySelector('#idCheckBtn').addEventListener('click', e => checkValue(e.target.previousElementSibling));
+			document.querySelector('#member_Id').addEventListener('input', () => {
+				checkId = false;
+				const idCheckResult = document.querySelector('#idCheckResult');
+				idCheckResult.innerText = '아이디 중복 확인을 해주세요.';
+				idCheckResult.style.color = 'gray';
+			})
+			
+			document.getElementById('member_NickName').addEventListener('change', (e) =>checkValue(e.target));
+			document.querySelector('#member_NickName').addEventListener('input', () => {
+				checkNickname = false;
+				const nickNameCheckResult = document.querySelector('#nickNameCheckResult'); 
+				nickNameCheckResult.innerText = '닉네임을 확인 중입니다.';
+				nickNameCheckResult.style.color = 'gray';
+			})
+			
+			const checkPwd = () => {
+				const label = document.querySelector('#pwdConfirm').nextElementSibling;
+				let check = true;
+				if(pwd.value.trim() == ''){
+					check = false;
+					label.innerText = '비밀번호를 입력해주세요.';
+					label.style.color = 'gray';
+				} else {
+						if(pwd.value !== pwdConfirm.value){
+							check = false;
+							label.innerText = '비밀번호를 확인해 주세요';
+							label.style.color = 'red';
+						} else {
+							label.innerText = '비밀번호가 확인되었습니다.';
+							label.style.color = 'green';
+						
+						}
+				}
+				return check;
+			}
+			const checkPwdRule = () => {
+				const guide = document.querySelector('#pwd').nextElementSibling;
+				if(pwd.value == ''){
+					guide.style.color = 'gray';
+					return false;
+				}
+				let check = true;
+				const eng =/[A-Za-z]/;
+				const num = /[0-9]/;
+				const special = /[!?@#$%&*]/;
+				const allowed = /^[A-Za-z0-9!?@#$%&*]{8,16}$/;
+				if (!eng.test(pwd.value) || !num.test(pwd.value) || !special.test(pwd.value) || !allowed.test(pwd.value)) {
+					check = false;
+					guide.style.color = 'red';
+				} else {
+					guide.style.color = 'gray';
+				}
+				return check;
+			}
+			document.querySelector('#pwd').addEventListener('input', checkPwd);
+			document.querySelector('#pwd').addEventListener('change', checkPwdRule);
+			document.querySelector('#pwdConfirm').addEventListener('input', checkPwd);
+			
+			
+			let emailId;
+			let email;
+			let emailSent = false; // 발급 받은 인증번호로 인증을 시도할 수 있는가
+			let leftTime = 180; 
+			let returnTime = null;
+			document.getElementById('sendEmail').addEventListener('click', e => {
+				emailId = document.querySelector('#emailId').value.trim();
+				resetEmailCheck();
+				if(emailId == ''){
+					alert('이메일이 입력되지 않았습니다.');
+					document.querySelector('#emailId').focus();
+				} else {
+					e.target.disabled = true;
+					e.target.innerText = '발송 중...';
+					email = emailId + '@' + document.querySelector('select[name=emailDomain]').value;
+					const resultEmail = email;
+					fetch('/member/email', {
+						method: 'POST',
+						headers: {'content-type' : 'application/x-www-form-urlencoded'},
+						body: 'email=' + encodeURIComponent(resultEmail) 
+					})
+					.then(res => {
+						if(!res.ok) throw new Error('HTTP 응답 실패');
+						return res.json();
+					})
+					.then(data => {	
+						if(resultEmail != (document.querySelector('#emailId').value.trim() + '@' + document.querySelector('select[name="emailDomain"]').value)){
+							e.target.disabled = false;
+							e.target.innerText = '인증번호';
+							return;
+						}
+						const emailTimer = document.querySelector('#emailTimer');
+						emailTimer.style.display = '';
+						emailTimer.innerText = '03:00';
+						returnTime = setInterval(() => {
+							leftTime--;
+							const min = String(Math.floor(leftTime/60)).padStart(2, '0');
+							const sec = String(leftTime%60).padStart(2, '0');
+							emailTimer.innerText = min + ":" + sec;
+							emailTimer.style.color = 'red';
+							if(leftTime == 0){
+								clearInterval(returnTime);	
+								emailTimer.innerText = '인증만료';
+								emailSent = false;
+								emailTimer.previousElementSibling.disabled = true;
+								emailTimer.nextElementSibling.disabled = true;
+							}
+						}, 1000);
+						alert('성공적으로 메일이 발송되었습니다.');
+						e.target.innerText = '재발송';
+						e.target.disabled = false;
+						const confirmDiv = $(e.target).parent().parent().next(); 
+						$(confirmDiv).slideDown(); 
+						emailSent = true;
+					})
+					.catch(err => {
+						console.log(err);
+						alert('메일 발송에 실패했습니다. 다시 시도해 주세요.');
+						e.target.innerText = '다시 발송';
+						e.target.disabled = false;
+					})
+				}
+			});
+			
+			
+			let emailCheck = false;
+			document.querySelector('#verifyBtn').addEventListener('click', (e) => {
+				const verifyNum = document.querySelector('#inputVerifyNum');
+				if(verifyNum.value.trim() == ''){
+					alert('인증번호를 입력해주세요')
+				} else if(!emailSent) {
+					alert('유효한 인증번호가 없습니다. 인증번호를 발급받아 주세요.')
+				} else {
+					const resultEmail = email;
+					fetch('/member/verifyEmail', {
+						method: 'POST', 
+						headers: {'content-type' : 'application/x-www-form-urlencoded'},
+						body: 'verifyNum=' + verifyNum.value.trim()
+					})
+					.then(res => {
+						if(!res.ok) throw new Error('이메일 인증 요청 실패');
+						return res.json();
+					})
+					.then(data => {
+						if(resultEmail != (document.querySelector('#emailId').value.trim() + '@' + document.querySelector('select[name="emailDomain"]').value)){
+							alert('이메일이 변경되었습니다.');
+							return;
+						}
+						if(data == 1){
+							alert('이메일 인증을 성공했습니다.');
+							emailCheck = true;
+							e.target.disabled = true;
+							verifyNum.disabled = true;
+							clearInterval(returnTime);
+							document.querySelector('#emailTimer').style.display = 'none';
+						} else {
+							emailCheck = false;
+							if(data == 0) alert('인증번호가 일치하지 않습니다.');
+							else if (data == -1){
+								alert('인증번호 유효시간이 만료되었습니다. 다시 발송해주세요');
+								emailSent = false;
+							} else if (data == -2){
+								alert('유효한 인증번호가 없습니다. 인증번호를 다시 발급받아주세요.');
+								emailSent = false;
+							} else alert('이메일 인증을 실패했습니다.');
+						}
+					})
+					.catch(err => {
+						console.log(err);
+						alert('이메일 인증 요청에 실패했습니다. 다시 시도해 주세요.');
+					})
+				}
+			})
+			
+			const resetEmailCheck = () => {
+				emailCheck = false;
+				emailSent = false;
+				const verifyBtn = document.querySelector('#verifyBtn');
+				verifyBtn.disabled = false;
+				document.querySelector('#inputVerifyNum').value = '';
+				document.querySelector('#inputVerifyNum').disabled = false;
+				const sendEmail = document.querySelector('#sendEmail'); 
+				sendEmail.innerText = sendEmail.disabled ? '요청 중...' : '인증번호';
+				clearInterval(returnTime);
+				leftTime = 180;
+				document.querySelector('#emailTimer').style.display = 'none';
+			}
+			document.querySelector('#emailId').addEventListener('input', resetEmailCheck);
+			document.querySelector('select[name=emailDomain]').addEventListener('change', resetEmailCheck);
+			
+			
+			document.getElementById('enrollForm').addEventListener('submit', e => {
+// 				if(!checkPwd() || !emailCheck || !checkPwdRule() || !checkId || !checkNickname){
+// 					e.preventDefault();
+// 				}
+				if(!checkId){
+					e.preventDefault();
+					alert('아이디 중복 확인을 해주세요.');
+					member_Id.focus();
+				} else if(!checkPwdRule()){
+					e.preventDefault();
+					alert('비밀번호를 확인해주세요');
+					pwd.focus();
+				} else if(!checkPwd()){
+					e.preventDefault();
+					alert('비밀번호가 다릅니다.');
+					pwdConfirm.focus();
+				} else if(!checkNickname){
+					e.preventDefault();
+					alert('닉네임을 확인해주세요');
+					member_NickName.focus();
+				} else if(!emailCheck){
+					e.preventDefault();
+					alert('이메일 인증을 완료해주세요');
+					document.querySelector('#emailId').focus();
+				}
+			})
+		}
+	</script>
+	
+</body>
+</html>

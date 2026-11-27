@@ -55,7 +55,7 @@ public class MemberController {
 	}
 	
 	@PostMapping("/enroll")
-	public String enroll (@ModelAttribute Member member, @RequestParam("emailId") String emailId, @RequestParam("emailDomain") String emailDomain, HttpSession session) {
+	public String insertMember (@ModelAttribute Member member, @RequestParam("emailId") String emailId, @RequestParam("emailDomain") String emailDomain, HttpSession session) {
 		if(member.getMemberId() == null || member.getMemberId().isBlank() || member.getMemberId().trim().length() < 2) return "redirect:/member/enroll";
 		if(member.getMemberPwd() == null || member.getMemberPwd().isBlank()) return "redirect:/member/enroll";
 		if(!member.getMemberPwd().matches(".*[a-zA-Z].*") || !member.getMemberPwd().matches(".*[0-9].*") || !member.getMemberPwd().matches(".*[!?@#$%&*].*") || !member.getMemberPwd().matches("^[a-zA-Z0-9!?@#$%&*]{8,16}$")) return "redirect:/member/enroll";
@@ -64,23 +64,34 @@ public class MemberController {
 		if(emailId == null || emailId.trim().isBlank()) return "redirect:/member/enroll";
 		if(!emailDomain.equals("naver.com") && !emailDomain.equals("gmail.com") && !emailDomain.equals("hanmail.net") && !emailDomain.equals("nate.com")) return "redirect:/member/enroll";
 		
-		
-		// 여기부터 ^^
-		HashMap<String, String> map = new HashMap<>();
-		map.put("column", member.getMemberId());
-		map.put("column", member.getMemberNickName());
-		int count = mService.checkValue(map);
-		if(count == 0) {
-			
-		}
-		
 		member.setMemberEmail(emailId + "@" + emailDomain);
 		String verifyEmail = (String)session.getAttribute("verifyEmail");
-		if(verifyEmail == null || !member.getMemberEmail().equals(verifyEmail)) {
-			return "redirect:/member/enroll";
+		if(verifyEmail == null || !member.getMemberEmail().equals(verifyEmail)) return "redirect:/member/enroll";
+		
+
+		int count = 0;
+		HashMap<String, String> map = new HashMap<>();
+		String[] column = {"member_id", "member_nickname", "member_email"};
+		String[] value = {member.getMemberId(), member.getMemberNickName(), member.getMemberEmail()};
+		for(int i =0; i < column.length; i++) {
+			map.put("column", column[i]);
+			map.put("value", value[i]);
+			count += mService.checkValue(map);
 		}
+		if(count != 0) return "redirect:/member/enroll";
+		
 		member.setMemberPwd(bcrypt.encode(member.getMemberPwd()));
-		return "";
+		
+		int result = mService.insertMember(member);
+		if(result > 0) {
+			session.removeAttribute("email");
+			session.removeAttribute("random");
+			session.removeAttribute("verifyEmail");
+			session.removeAttribute("emailSentTime");
+			return "redirect:/member/login";
+		} else {
+			throw new MemberException("회원가입에 실패했습니다.");
+		}
 	}
 	
 	@GetMapping("/mypage")

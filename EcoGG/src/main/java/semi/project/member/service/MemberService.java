@@ -22,4 +22,8 @@ public class MemberService {
 		return mapper.checkValue(map);
 	}
 
+	public int insertMember(Member member) {
+		return mapper.insertMember(member);
+	}
+
 }

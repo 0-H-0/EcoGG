@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoGG 마이페이지</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #252d3d;
+    background: #fff;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* 상단 네비게이션 */
+.header {
+    height: 60px;
+    border-bottom: 1px solid #e5eaf2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4%;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: 900;
+    color: #123c7a;
+}
+
+.logo span {
+    font-size: 30px;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 38px;
+    font-weight: 700;
+}
+
+.nav a {
+    padding: 10px 18px;
+    border-radius: 10px;
+}
+
+.nav a.active {
+    background: #e3edff;
+    color: #1250bd;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.logout {
+    border: 1px solid #1d55c5;
+    background: white;
+    color: #174bb5;
+    padding: 9px 20px;
+    border-radius: 12px;
+}
+
+/* 전체 컨텐츠 */
+.container {
+    padding: 15px 2.5%;
+}
+
+/* 브레드크럼 */
+.breadcrumb {
+    font-size: 13px;
+    color: #66758e;
+    margin-bottom: 18px;
+}
+
+/* 레이아웃 */
+.layout {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 22px;
+}
+
+/* 사이드 메뉴 */
+.sidebar {
+    background: #f5f8fd;
+    border-radius: 13px;
+    padding: 15px 10px;
+    height: fit-content;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    padding: 8px 12px 22px;
+}
+
+.side-menu {
+    list-style: none;
+}
+
+.side-menu li {
+    padding: 13px 12px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.side-menu li.active {
+    background: #dfebff;
+    color: #1553c4;
+}
+
+.side-menu li:hover {
+    background: #e8f0fc;
+}
+
+.side-menu span {
+    margin-right: 12px;
+    font-size: 19px;
+}
+
+/* 메인 영역 */
+.main {
+    min-width: 0;
+}
+
+/* 환영 배너 */
+.banner {
+    height: 85px;
+    background: linear-gradient(100deg, #eaf3ff, #f1f8ff);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    margin-bottom: 13px;
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-character {
+    font-size: 55px;
+    margin-right: 20px;
+}
+
+.banner h1 {
+    font-size: 23px;
+    line-height: 1.35;
+    z-index: 1;
+}
+
+.banner h1 span {
+    color: #2457c5;
+}
+
+.banner-decoration {
+    position: absolute;
+    right: 20px;
+    bottom: -10px;
+    font-size: 60px;
+    opacity: .8;
+}
+
+/* 통계 카드 */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 13px;
+    margin-bottom: 13px;
+}
+
+.stat-card {
+    border: 1px solid #dce3ed;
+    border-radius: 16px;
+    height: 77px;
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    gap: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.02);
+}
+
+.stat-icon {
+    font-size: 38px;
+}
+
+.stat-info p {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-info h2 {
+    font-size: 27px;
+    color: #1752bd;
+}
+
+.stat-info h2 small {
+    font-size: 15px;
+}
+
+/* 공통 카드 */
+.card {
+    background: white;
+    border: 1px solid #dce3ed;
+    border-radius: 17px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.02);
+}
+
+.card-title {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-title span:first-child::before {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 19px;
+    background: #1754c6;
+    border-radius: 5px;
+    margin-right: 9px;
+    vertical-align: middle;
+}
+
+/* 차트 영역 */
+.chart-area {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 13px;
+    margin-bottom: 13px;
+}
+
+.chart-content {
+    height: 145px;
+    position: relative;
+}
+
+.donut-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    height: 145px;
+}
+
+.donut-chart {
+    height: 145px;
+    width: 100%;
+    max-width: 210px;
+    margin: auto;
+}
+
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.legend-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-value {
+    color: #64748b;
+}
+
+/* 하단 영역 */
+.bottom-area {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 13px;
+}
+
+.more {
+    font-size: 12px;
+    color: #1552bd;
+    cursor: pointer;
+}
+
+/* 활동 내역 */
+.activity-list {
+    list-style: none;
+}
+
+.activity-list li {
+    display: grid;
+    grid-template-columns: 100px 28px 1fr 65px;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid #edf0f5;
+    font-size: 13px;
+}
+
+.activity-date {
+    color: #59677e;
+}
+
+.activity-icon {
+    font-size: 18px;
+}
+
+.activity-name {
+    color: #44536a;
+}
+
+.activity-point {
+    text-align: right;
+    color: #164bb2;
+    font-weight: 800;
+}
+
+/* 바로가기 */
+.quick-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+}
+
+.quick-card {
+    background: #f2f6fd;
+    border-radius: 13px;
+    padding: 15px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    min-height: 70px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.quick-card:hover {
+    background: #e5efff;
+    transform: translateY(-2px);
+}
+
+.quick-icon {
+    font-size: 27px;
+    color: #1555c7;
+}
+
+.quick-text {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.quick-text small {
+    color: #63718a;
+    font-weight: 500;
+}
+
+.quick-arrow {
+    color: #1555c7;
+    font-size: 22px;
+}
+
+/* 반응형 */
+@media(max-width: 1000px) {
+    .header {
+        padding: 0 15px;
+    }
+
+    .nav {
+        gap: 5px;
+    }
+
+    .layout {
+        grid-template-columns: 150px 1fr;
+        gap: 12px;
+    }
+
+    .chart-area,
+    .bottom-area {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 700px) {
+    .header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .nav {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .header-right {
+        font-size: 12px;
+    }
+
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        padding: 8px;
+    }
+
+    .sidebar h2 {
+        padding: 8px;
+    }
+
+    .side-menu {
+        display: flex;
+        gap: 5px;
+    }
+
+    .side-menu li {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .banner h1 {
+        font-size: 17px;
+    }
+
+    .banner-character {
+        font-size: 38px;
+    }
+
+    .donut-layout {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .quick-links {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 상단 네비게이션 -->
+<header class="header">
+
+    <div class="logo" onclick="">
+        🐮 EcoGG
+    </div>
+
+    <nav class="nav">
+        <a href="/info">정보</a>
+        <a href="/data">데이터</a>
+        <a href="/product">친환경제품</a>
+        <a href="/community">커뮤니티</a>
+        <a href="/member/mypage" class="active">마이페이지</a>
+    </nav>
+
+    <div class="header-right">
+        <span>[[${session.loginUser.memberNickName}]]님 반갑습니다.</span>
+        <span>|</span>
+        <button class="logout"
+                onclick="location.href='/member/logout'">
+            로그아웃
+        </button>
+    </div>
+
+</header>
+
+<div class="container">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb">
+        🏠 Home &gt; 마이페이지 &gt; 대시보드
+    </div>
+
+    <div class="layout">
+
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+
+            <h2>♙ 마이페이지</h2>
+
+            <ul class="side-menu">
+
+                <li class="active">
+                    <span>▦</span> 대시보드
+                </li>
+
+                <li onclick="location.href='/mypage/update'">
+                    <span>✎</span> 내 정보 수정
+                </li>
+
+                <li onclick="location.href='/member/logout'">
+                    <span>⇥</span> 로그아웃
+                </li>
+
+            </ul>
+
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main">
+
+            <!-- 환영 배너 -->
+            <section class="banner">
+
+                <div class="banner-character">🐮</div>
+
+                <h1>
+                    [[${session.loginUser.memberNickName}]]님,<br>
+                    지구를 위한 실천, 함께 이어가요! 🌱
+                </h1>
+
+                <div class="banner-decoration">
+                    🌳 🌿
+                </div>
+
+            </section>
+
+            <!-- 통계 카드 -->
+            <section class="stats">
+
+                <div class="stat-card">
+                    <div class="stat-icon">🌿</div>
+                    <div class="stat-info">
+                        <p>누적 실천 횟수</p>
+                        <h2>28 <small>회</small></h2>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🪙</div>
+                    <div class="stat-info">
+                        <p>누적 예상 포인트</p>
+                        <h2>15,240 <small>P</small></h2>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">☁️</div>
+                    <div class="stat-info">
+                        <p>예상 감축량</p>
+                        <h2>32.6 <small>kg</small></h2>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- 차트 영역 -->
+            <section class="chart-area">
+
+                <!-- 활동별 실천 비율 -->
+                <div class="card">
+
+                    <h3 class="card-title">
+                        <span>활동별 실천 비율</span>
+                    </h3>
+
+                    <div class="donut-layout">
+
+                        <div class="donut-chart">
+                            <canvas id="donutChart"></canvas>
+                        </div>
+
+                        <div class="legend">
+
+                            <div class="legend-item">
+                                <div class="legend-name">
+                                    <span class="dot"
+                                    style="background:#3985e7"></span>
+                                    에너지 절약
+                                </div>
+                                <span class="legend-value">39% (11회)</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <div class="legend-name">
+                                    <span class="dot"
+                                    style="background:#70d7aa"></span>
+                                    자원순환
+                                </div>
+                                <span class="legend-value">25% (7회)</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <div class="legend-name">
+                                    <span class="dot"
+                                    style="background:#91d8ef"></span>
+                                    친환경 이동
+                                </div>
+                                <span class="legend-value">18% (5회)</span>
+                            </div>
+
+                            <div class="legend-item">
+                                <div class="legend-name">
+                                    <span class="dot"
+                                    style="background:#c5a8f5"></span>
+                                    기타
+                                </div>
+                                <span class="legend-value">18% (5회)</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 월별 실천 추이 -->
+                <div class="card">
+
+                    <h3 class="card-title">
+                        <span>월별 실천 추이</span>
+                    </h3>
+
+                    <div class="chart-content">
+                        <canvas id="barChart"></canvas>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- 하단 영역 -->
+            <section class="bottom-area">
+
+                <!-- 최근 활동 이력 -->
+                <div class="card">
+
+                    <h3 class="card-title">
+                        <span>최근 활동 이력</span>
+
+                        <a href="/mypage/activity" class="more">
+                            더보기 ❯
+                        </a>
+                    </h3>
+
+                    <ul class="activity-list">
+
+                        <li>
+                            <span class="activity-date">2026-11-10</span>
+                            <span class="activity-icon">🥤</span>
+                            <span class="activity-name">다회용 컵 사용</span>
+                            <span class="activity-point">+300 P</span>
+                        </li>
+
+                        <li>
+                            <span class="activity-date">2026-11-08</span>
+                            <span class="activity-icon">♻️</span>
+                            <span class="activity-name">분리배출 실천</span>
+                            <span class="activity-point">+200 P</span>
+                        </li>
+
+                        <li>
+                            <span class="activity-date">2026-11-05</span>
+                            <span class="activity-icon">🚌</span>
+                            <span class="activity-name">대중교통 이용</span>
+                            <span class="activity-point">+500 P</span>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- 바로가기 -->
+                <div class="card">
+
+                    <h3 class="card-title">
+                        <span>바로가기</span>
+                    </h3>
+
+                    <div class="quick-links">
+
+                        <div class="quick-card"
+                             onclick="location.href='/data/activity'">
+
+                            <div class="quick-icon">▣</div>
+
+                            <div class="quick-text">
+                                실천 활동 기록하기<br>
+                                <small>(데이터 페이지)</small>
+                            </div>
+
+                            <div class="quick-arrow">›</div>
+
+                        </div>
+
+                        <div class="quick-card"
+                             onclick="location.href='/data/statistics'">
+
+                            <div class="quick-icon">▥</div>
+
+                            <div class="quick-text">
+                                상세 통계 보기<br>
+                                <small>(데이터 페이지)</small>
+                            </div>
+
+                            <div class="quick-arrow">›</div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>
+
+<script>
+
+// 활동별 실천 비율 도넛 차트
+const donutCtx = document.getElementById('donutChart');
+
+new Chart(donutCtx, {
+
+    type: 'doughnut',
+
+    data: {
+        labels: [
+            '에너지 절약',
+            '자원순환',
+            '친환경 이동',
+            '기타'
+        ],
+
+        datasets: [{
+            data: [39, 25, 18, 18],
+
+            backgroundColor: [
+                '#3985e7',
+                '#70d7aa',
+                '#91d8ef',
+                '#c5a8f5'
+            ],
+
+            borderWidth: 0,
+            hoverOffset: 5
+        }]
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+
+        plugins: {
+            legend: {
+                display: false
+            },
+
+            tooltip: {
+                enabled: true
+            }
+        }
+    }
+});
+
+
+// 월별 실천 추이 막대 차트
+const barCtx = document.getElementById('barChart');
+
+new Chart(barCtx, {
+
+    type: 'bar',
+
+    data: {
+        labels: ['6월', '7월', '8월', '9월', '10월', '11월'],
+
+        datasets: [{
+            label: '실천 횟수',
+
+            data: [3, 4, 6, 5, 7, 3],
+
+            backgroundColor: [
+                '#b3d2fa',
+                '#b3d2fa',
+                '#b3d2fa',
+                '#b3d2fa',
+                '#0749bb',
+                '#b3d2fa'
+            ],
+
+            borderRadius: 7,
+            barThickness: 42
+        }]
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 10,
+
+                ticks: {
+                    stepSize: 2
+                },
+
+                grid: {
+                    color: '#edf1f7'
+                }
+            },
+
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+
+});
+
+</script>
+
+</body>
+</html>

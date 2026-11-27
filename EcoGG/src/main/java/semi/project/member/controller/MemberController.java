@@ -36,7 +36,11 @@ public class MemberController {
 		if(loginUser != null && bcrypt.matches(member.getMemberPwd(), loginUser.getMemberPwd())) {
 			if(!loginUser.getMemberStatus().equals("SUSPENDED")) {
 				session.setAttribute("loginUser", loginUser);
-				return "redirect:/home";
+				
+				if(loginUser.getSeparateMem().equals("Y")) {
+					return "redirect:/admin/home";
+				} else
+					return "redirect:/home";
 			} else {
 				return "views/member/login";
 			}
@@ -79,4 +83,8 @@ public class MemberController {
 		return "";
 	}
 	
+	@GetMapping("/mypage")
+	public String mypage() {
+		return "views/member/mypage";
+	}
 }

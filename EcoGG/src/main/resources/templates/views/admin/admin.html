@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>탄소중립 관리자 페이지</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #f4f7fc;
+    color: #263445;
+}
+
+/* 사이드바 */
+.sidebar {
+    position: fixed;
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg, #23866b, #176d59);
+    color: white;
+    padding: 30px 15px;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.logo .leaf {
+    font-size: 45px;
+}
+
+.logo h2 {
+    font-size: 21px;
+    margin-top: 10px;
+}
+
+.logo p {
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: .8;
+}
+
+.menu {
+    list-style: none;
+}
+
+.menu li {
+    padding: 16px 18px;
+    margin-bottom: 8px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: .2s;
+}
+
+.menu li:hover,
+.menu li.active {
+    background: #45b77c;
+}
+
+.menu li span {
+    margin-right: 18px;
+    font-size: 20px;
+}
+
+.earth {
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    left: 0;
+    text-align: center;
+}
+
+.earth .planet {
+    font-size: 95px;
+}
+
+.earth p {
+    margin-top: 15px;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+/* 메인 영역 */
+.main {
+    margin-left: 240px;
+    padding: 25px;
+}
+
+/* 상단바 */
+.topbar {
+    height: 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.topbar .right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.admin {
+    font-weight: bold;
+}
+
+/* 인사말 */
+.welcome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.welcome h1 {
+    font-size: 29px;
+    margin-bottom: 12px;
+}
+
+.welcome p {
+    color: #667085;
+}
+
+.date {
+    color: #667085;
+    background: white;
+    padding: 12px 18px;
+    border-radius: 25px;
+}
+
+/* 통계 카드 */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 13px;
+    padding: 23px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.stat-title {
+    color: #667085;
+    font-size: 15px;
+    margin-bottom: 18px;
+}
+
+.stat-number {
+    font-size: 27px;
+    font-weight: bold;
+}
+
+.stat-change {
+    margin-top: 12px;
+    color: #2eb878;
+    font-size: 14px;
+}
+
+/* 차트 영역 */
+.chart-area {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.card h3 {
+    margin-bottom: 22px;
+    font-size: 19px;
+}
+
+.chart-box {
+    height: 260px;
+}
+
+/* 하단 테이블 */
+.bottom-area {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+th {
+    background: #f4f6fa;
+    padding: 13px 8px;
+}
+
+td {
+    padding: 13px 8px;
+    text-align: center;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.status {
+    background: #d8f6e2;
+    color: #24975b;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* 반응형 */
+@media(max-width: 1100px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-area,
+    .bottom-area {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 700px) {
+    .sidebar {
+        width: 75px;
+        padding: 20px 8px;
+    }
+
+    .logo h2,
+    .logo p,
+    .menu li .menu-name,
+    .earth {
+        display: none;
+    }
+
+    .menu li {
+        text-align: center;
+        padding: 15px 5px;
+    }
+
+    .menu li span {
+        margin: 0;
+    }
+
+    .main {
+        margin-left: 75px;
+        padding: 15px;
+    }
+
+    .welcome {
+        display: block;
+    }
+
+    .date {
+        display: inline-block;
+        margin-top: 15px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 사이드바 -->
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="leaf">🌿</div>
+        <h2>탄소중립 플랫폼</h2>
+        <p>관리자 페이지</p>
+    </div>
+
+    <ul class="menu">
+        <li class="active">
+            <span>🏠</span><span class="menu-name">대시보드</span>
+        </li>
+
+        <li>
+            <span>👤</span><span class="menu-name">회원 관리</span>
+        </li>
+
+        <li>
+            <span>📄</span><span class="menu-name">게시글 관리</span>
+        </li>
+
+        <li>
+            <span>💬</span><span class="menu-name">댓글 관리</span>
+        </li>
+
+        <li>
+            <span>⚠️</span><span class="menu-name">신고 관리</span>
+        </li>
+
+        <li>
+            <span>📊</span><span class="menu-name">통계 분석</span>
+        </li>
+    </ul>
+
+    <div class="earth">
+        <div class="planet">🌎</div>
+        <p>
+            지구를 위한<br>
+            작은 실천, 함께해요!
+        </p>
+    </div>
+
+</aside>
+
+<!-- 메인 -->
+<main class="main">
+
+    <!-- 상단바 -->
+    <header class="topbar">
+        <div>☰</div>
+
+        <div class="right">
+            <span>🔔</span>
+            <span class="admin">👤 관리자님 ▼</span>
+        </div>
+    </header>
+
+    <!-- 인사말 -->
+    <section class="welcome">
+        <div>
+            <h1>안녕하세요, 관리자님! 🌱</h1>
+            <p>오늘도 탄소중립 플랫폼과 함께해 주셔서 감사합니다.</p>
+        </div>
+
+        <div class="date" id="today"></div>
+    </section>
+
+    <!-- 통계 카드 -->
+    <section class="stats">
+
+        <div class="stat-card">
+            <div class="stat-title">👥 전체 회원 수</div>
+            <div class="stat-number">12,480명</div>
+            <div class="stat-change">▲ +12%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">📄 전체 게시글 수</div>
+            <div class="stat-number">28,750개</div>
+            <div class="stat-change">▲ +8%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">💬 전체 댓글 수</div>
+            <div class="stat-number">74,320개</div>
+            <div class="stat-change">▲ +10%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-title">⚠️ 신고 접수 수</div>
+            <div class="stat-number">246건</div>
+            <div class="stat-change">▲ +5%</div>
+        </div>
+
+    </section>
+
+    <!-- 차트 -->
+    <section class="chart-area">
+
+        <div class="card">
+            <h3>📊 주간 방문자 수 통계</h3>
+            <div class="chart-box">
+                <canvas id="visitorChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🌿 환경 보호 활동 현황</h3>
+            <div class="chart-box">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- 하단 테이블 -->
+    <section class="bottom-area">
+
+        <div class="card">
+            <h3>📋 최근 가입 회원</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>아이디</th>
+                        <th>이름</th>
+                        <th>가입일</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>greenuser123</td>
+                        <td>김지은</td>
+                        <td>2026-11-26</td>
+                        <td><span class="status">정상</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>eco_love</td>
+                        <td>이민호</td>
+                        <td>2026-11-26</td>
+                        <td><span class="status">정상</span></td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>carbonzero</td>
+                        <td>박서연</td>
+                        <td>2026-11-25</td>
+                        <td><span class="status">정상</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>📢 공지사항 관리</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>제목</th>
+                        <th>작성일</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>탄소중립 포인트 이벤트 안내</td>
+                        <td>11-25</td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>분리수거 캠페인 참여 안내</td>
+                        <td>11-20</td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>시스템 점검 안내</td>
+                        <td>11-18</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+
+// 오늘 날짜
+const today = new Date();
+
+document.getElementById('today').innerText =
+    '📅 ' + today.getFullYear() + '년 ' +
+    (today.getMonth() + 1) + '월 ' +
+    today.getDate() + '일';
+
+// 방문자 통계
+new Chart(document.getElementById('visitorChart'), {
+    type: 'line',
+
+    data: {
+        labels: ['11/20', '11/21', '11/22', '11/23',
+                 '11/24', '11/25', '11/26'],
+
+        datasets: [{
+            label: '방문자 수',
+            data: [7500, 12500, 9200, 12500,
+                   9700, 11000, 13700],
+
+            borderColor: '#35b989',
+            backgroundColor: 'rgba(53,185,137,0.12)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        maintainAspectRatio: false,
+        responsive: true
+    }
+});
+
+// 환경 보호 활동 통계
+new Chart(document.getElementById('activityChart'), {
+    type: 'doughnut',
+
+    data: {
+        labels: ['탄소포인트 참여', '분리수거 실천', '에너지 절약'],
+
+        datasets: [{
+            data: [45, 35, 20],
+            backgroundColor: ['#36b98c', '#579cf4', '#a9dfa0'],
+            borderWidth: 0
+        }]
+    },
+
+    options: {
+        maintainAspectRatio: false,
+        responsive: true
+    }
+});
+
+</script>
+
+</body>
+</html>

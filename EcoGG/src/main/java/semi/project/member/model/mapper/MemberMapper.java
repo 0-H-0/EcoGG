@@ -14,5 +14,8 @@ public interface MemberMapper {
 	int checkValue(HashMap<String, String> map);
 
 	int insertMember(Member member);
+	
+	// 관리자 페이지 전채 조회수 조회에요 뿌릿!
+	int selectMemberCount();
 
 }

@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,11 +36,11 @@ public class MemberController {
 	 * 회원 로그인 처리 및 회원 구분에 따른 페이지 이동
 	 * @param member 로그인 시 입력한 회원 아이디와 비밀번호
 	 * @param session 로그인 회원 정보를 저장할 세션
+	 * @param model 로그인 실패 시 오류 메시지를 전달할 객체
 	 * @return 로그인 결과에 따른 페이지 경로
-	 * @throws MemberException 회원 정보가 없거나 비밀번호가 일치하지 않는 경우
 	 */
 	@PostMapping("/login")
-	public String login(@ModelAttribute Member member, HttpSession session) {
+	public String login(@ModelAttribute Member member, HttpSession session, Model model) {
 		// 회원 정보 조회
 		Member loginUser = mService.login(member);
 		
@@ -57,7 +59,9 @@ public class MemberController {
 				return "views/member/login";
 			}
 		} else {
-			throw new MemberException("로그인을 실패했습니다.");
+			// 로그인 실패 메시지 전달 및 로그인 페이지 반환
+			model.addAttribute("loginError", "아이디 또는 비밀번호가 일치하지 않습니다.");
+			return "views/member/login";
 		}
 	}
 	
@@ -118,7 +122,7 @@ public class MemberController {
 			session.removeAttribute("emailSentTime");
 			return "redirect:/member/login";
 		} else {
-			throw new MemberException("회원가입에 실패했습니다.");
+			throw new MemberException("회원가입에 실패했습니다.", "ENROLL");
 		}
 	}
 	
@@ -133,4 +137,19 @@ public class MemberController {
 		session.invalidate();
 		return "redirect:/home";
 	}
+	
+	/**
+	 * 회원 관련 예외 처리 및 오류 안내 페이지 이동
+	 * @param e 발생한 회원 관련 예외 객체
+	 * @param model 오류 메시지를 전달할 객체
+	 * @return 회원 전용 오류 안내 페이지 경로
+	 */
+	@ExceptionHandler(MemberException.class)
+	public String error(MemberException e, Model model) {
+		// 예외 메시지를 Model에 저장
+		model.addAttribute("errorType", e.getType());
+		model.addAttribute("errorMsg", e.getMessage());
+		return "views/member/error";
+	}
+	
 }

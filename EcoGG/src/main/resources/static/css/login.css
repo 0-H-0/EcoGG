@@ -9,6 +9,7 @@ body { color: #111c34; font-family: 'Pretendard', 'Noto Sans KR', 'Malgun Gothic
 .login-card .form-control:focus { border-color: #1261bd; box-shadow: 0 0 0 3px rgba(18, 97, 189, .1); }
 .login-link { color: #526278; font-size: 14px; text-decoration: none; cursor: pointer; }
 .login-link:hover { color: #1261bd; text-decoration: underline; }
+.login-error { min-height: 21px; }
 @media (max-width: 991px) {
     .login-character { width: 180px; }
 }

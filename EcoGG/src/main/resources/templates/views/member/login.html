@@ -43,6 +43,9 @@
                                        name="memberPwd" placeholder="비밀번호를 입력하세요" required>
                                 <label for="floatingPassword">비밀번호</label>
                             </div>
+                            <div class="login-error text-center mb-3">
+                            	<small id="loginError" th:if="${loginError != null}" class="text-danger">[[${loginError}]]</small>
+                            </div>
                             <button class="w-100 btn btn-join rounded-pill py-3 fw-bold" type="submit">로그인</button>
                             <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
                                 <a class="login-link" th:href="@{/member/enroll}">회원가입</a>
@@ -62,6 +65,13 @@
     <script>
         window.onload = () => {
             document.getElementsByName('beforeURL')[0].value = document.referrer;
+            
+            const hideError = () => {
+            	const error = document.querySelector('#loginError');
+            	if(error != null) 	error.classList.add('d-none');
+            }
+            document.querySelector('#floatingInput').addEventListener('input', ()=> hideError());
+            document.querySelector('#floatingPassword').addEventListener('input', ()=> hideError());
         }
     </script>
 

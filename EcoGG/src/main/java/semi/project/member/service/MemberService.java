@@ -14,14 +14,17 @@ public class MemberService {
 
 	private final MemberMapper mapper;
 	
+	// 로그인 회원 정보 조회
 	public Member login(Member member) {
 		return mapper.login(member);
 	}
-
+	
+	// 아이디 및 닉네임 중복 확인
 	public int checkValue(HashMap<String, String> map) {
 		return mapper.checkValue(map);
 	}
-
+	
+	// 신규 회원 등록
 	public int insertMember(Member member) {
 		return mapper.insertMember(member);
 	}

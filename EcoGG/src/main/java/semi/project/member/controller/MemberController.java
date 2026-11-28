@@ -24,17 +24,29 @@ public class MemberController {
 	private final MemberService mService;
 	private final BCryptPasswordEncoder bcrypt;
 
+	// 로그인 페이지 이동
 	@GetMapping("/login")
 	public String loginView() {
 		return "/views/member/login";
 	}
 	
+	/**
+	 * 회원 로그인 처리 및 회원 구분에 따른 페이지 이동
+	 * @param member 로그인 시 입력한 회원 아이디와 비밀번호
+	 * @param session 로그인 회원 정보를 저장할 세션
+	 * @return 로그인 결과에 따른 페이지 경로
+	 * @throws MemberException 회원 정보가 없거나 비밀번호가 일치하지 않는 경우
+	 */
 	@PostMapping("/login")
 	public String login(@ModelAttribute Member member, HttpSession session) {
+		// 회원 정보 조회
 		Member loginUser = mService.login(member);
 		
+		// 회원 정보 및 비밀번호 일치 여부 확인
 		if(loginUser != null && bcrypt.matches(member.getMemberPwd(), loginUser.getMemberPwd())) {
+			// 이용 정지 회원 확인
 			if(!loginUser.getMemberStatus().equals("SUSPENDED")) {
+				// 로그인 회원 정보 세션에 저장
 				session.setAttribute("loginUser", loginUser);
 				
 				if(loginUser.getSeparateMem().equals("Y")) {
@@ -49,13 +61,24 @@ public class MemberController {
 		}
 	}
 	
+	// 회원가입 페이지 이동
 	@GetMapping("/enroll")
 	public String enrollView() {
 		return "views/member/enroll";
 	}
 	
+	/**
+	 * 회원가입 정보 검증 및 신규 회원 등록
+	 * @param member 회원가입 시 입력한 회원 정보
+	 * @param emailId 이메일 아이디
+	 * @param emailDomain 이메일 도메인
+	 * @param session 이메일 인증 정보를 저장한 세션
+	 * @return 회원가입 결과에 따른 페이지 경로
+	 * @throws MemberException 회원 등록에 실패한 경우
+	 */
 	@PostMapping("/enroll")
 	public String insertMember (@ModelAttribute Member member, @RequestParam("emailId") String emailId, @RequestParam("emailDomain") String emailDomain, HttpSession session) {
+		// 회원가입 입력값 유효성 검사
 		if(member.getMemberId() == null || member.getMemberId().isBlank() || member.getMemberId().trim().length() < 2) return "redirect:/member/enroll";
 		if(member.getMemberPwd() == null || member.getMemberPwd().isBlank()) return "redirect:/member/enroll";
 		if(!member.getMemberPwd().matches(".*[a-zA-Z].*") || !member.getMemberPwd().matches(".*[0-9].*") || !member.getMemberPwd().matches(".*[!?@#$%&*].*") || !member.getMemberPwd().matches("^[a-zA-Z0-9!?@#$%&*]{8,16}$")) return "redirect:/member/enroll";
@@ -64,11 +87,13 @@ public class MemberController {
 		if(emailId == null || emailId.trim().isBlank()) return "redirect:/member/enroll";
 		if(!emailDomain.equals("naver.com") && !emailDomain.equals("gmail.com") && !emailDomain.equals("hanmail.net") && !emailDomain.equals("nate.com")) return "redirect:/member/enroll";
 		
+		// 이메일 주소 생성
 		member.setMemberEmail(emailId + "@" + emailDomain);
+		// 이메일 인증 여부 확인
 		String verifyEmail = (String)session.getAttribute("verifyEmail");
 		if(verifyEmail == null || !member.getMemberEmail().equals(verifyEmail)) return "redirect:/member/enroll";
 		
-
+		// 아이디, 닉네임, 이메일 중복 확인
 		int count = 0;
 		HashMap<String, String> map = new HashMap<>();
 		String[] column = {"member_id", "member_nickname", "member_email"};
@@ -80,10 +105,13 @@ public class MemberController {
 		}
 		if(count != 0) return "redirect:/member/enroll";
 		
+		// 비밀번호 암호화
 		member.setMemberPwd(bcrypt.encode(member.getMemberPwd()));
 		
+		// 신규 회원 등록
 		int result = mService.insertMember(member);
 		if(result > 0) {
+			// 회원가입 성공 시 이메일 인증 관련 세션 정보 삭제
 			session.removeAttribute("email");
 			session.removeAttribute("random");
 			session.removeAttribute("verifyEmail");

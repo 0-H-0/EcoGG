@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div th:replace="~{views/common/navbar :: navbar}"></div>
+	<img th:src="@{'/images/error-' + (${#lists.contains({400, 401, 403, 404, 405, 418, 500, 503}, status)} ? ${status} : 'default') + '.png'}" class="w-100" alt="오류 안내 이미지">
+	<div class="container text-center py-5" th:switch="${status}">
+		<th:block th:case="400">
+			<h2 class="fw-bold mb-3">요청 내용을 다시 확인해 주세요!</h2>
+			<p class="text-secondary">입력한 정보에 문제가 있어 요청을 처리하지 못했어요.</p>
+		</th:block>
+		<th:block th:case="401">
+			<h2 class="fw-bold mb-3">로그인이 필요한 서비스예요!</h2>
+			<p class="text-secondary">로그인 후 다시 이용해 주세요.</p>
+		</th:block>
+		<th:block th:case="403">
+			<h2 class="fw-bold mb-3">이 페이지에는 접근할 수 없어요!</h2>
+			<p class="text-secondary">해당 페이지를 이용할 권한이 없습니다.</p>
+		</th:block>
+		<th:block th:case="404">
+			<h2 class="fw-bold mb-3">앗! 페이지를 찾을 수 없어요.</h2>
+			<p class="text-secondary">주소가 변경되었거나 존재하지 않는 페이지입니다.</p>
+		</th:block>
+		<th:block th:case="405">
+			<h2 class="fw-bold mb-3">앗! 잘못된 방향으로 왔어요.</h2>
+			<p class="text-secondary">올바른 경로를 통해 다시 시도해 주세요.</p>
+		</th:block>
+		<th:block th:case="418">
+			<h2 class="fw-bold mb-3">잠깐, 차 한잔하고 가실래요?</h2>
+			<p class="text-secondary">지구도 우리도 가끔은 휴식이 필요하니까요.</p>
+		</th:block>
+		<th:block th:case="500">
+			<h2 class="fw-bold mb-3">잠시 문제가 생겼어요.</h2>
+			<p class="text-secondary">서비스 이용에 불편을 드려 죄송합니다.<br/>잠시 후 다시 시도해 주세요.</p>
+		</th:block>
+		<th:block th:case="503">
+			<h2 class="fw-bold mb-3">잠시 쉬어가는 중이에요.</h2>
+			<p class="text-secondary">현재 서비스를 이용할 수 없습니다.<br/>잠시 후 다시 방문해 주세요.</p>
+		</th:block>
+		<th:block th:case="*">
+			<h2 class="fw-bold mb-3">예상치 못한 문제가 발생했어요.</h2>
+			<p class="text-secondary">잠시 후 다시 시도해 주세요.</p>
+		</th:block>
+		<a class="btn btn-join rounded-pill px-5 py-3 fw-bold mt-3" th:href="@{/home}">메인으로 이동</a>
+		
+	</div>
+</body>
+</html>
